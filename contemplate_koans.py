@@ -10,6 +10,16 @@
 #
 
 import sys
+import warnings
+
+# about_none.py intentionally uses ``None is not 0`` to teach the identity
+# operators. Python emits a SyntaxWarning suggesting ``!=`` for that, but the
+# ``is``/``is not`` form is the lesson, so silence just that expected warning.
+warnings.filterwarnings(
+    "ignore",
+    message=r'"is not" with .* literal',
+    category=SyntaxWarning,
+)
 
 if __name__ == '__main__':
     if sys.version_info < (3, 0):
