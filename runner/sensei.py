@@ -53,8 +53,16 @@ class Sensei(MockableTestResult):
     def passesCount(self):
         return not (self.failures and helper.cls_name(self.failures[0][0]) != self.prevTestClassName)
 
+    # Python 3.13+ colorizes tracebacks when writing to a TTY, embedding ANSI
+    # escape codes inside the formatted error string (e.g. "line \x1b[35m23\x1b[0m").
+    # Those codes break the line-number scraping in sortGroups/sortFailures, so
+    # strip them from the stored error text.
+    ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
+
     def addFailure(self, test, err):
         MockableTestResult.addFailure(self, test, err)
+        t, errstr = self.failures[-1]
+        self.failures[-1] = (t, self.ANSI_ESCAPE.sub("", errstr))
 
     def sortFailures(self, testClassName):
         table = list()
